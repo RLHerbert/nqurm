@@ -2,23 +2,66 @@ pub mod urm {
     pub type Program = Vec<Instructions>;
     pub type Registers = Vec<u64>;
 
-    #[derive(Default, Debug)]
-    pub struct URM {
-        registers: Registers,
-        instructions: Program,
-        program_counter: u64,
+    pub fn execute(urm: URM) -> Option<u64> {
+        urm.into_iter().last()
     }
 
     #[derive(Debug)]
+    pub struct URM {
+        registers: Registers,
+        instructions: Program,
+        program_counter: usize,
+    }
+
+    impl URM {
+        fn step(&mut self) -> Option<&Registers> {
+            if let Some(instruction) = self.instructions.get(self.program_counter) {
+                Some(&self.registers)
+            } else {
+                None
+            }
+        }
+    }
+
+    impl Iterator for URM {
+        type Item = u64;
+        fn next(&mut self) -> Option<Self::Item> {
+            self.step()
+                .map(|reg| reg.first())
+                .flatten()
+                .map(|first| first.clone())
+        }
+    }
+
+    impl Default for URM {
+        fn default() -> Self {
+            Self {
+                registers: Vec::new(),
+                instructions: Vec::new(),
+                program_counter: 1,
+            }
+        }
+    }
+
+    impl From<Program> for URM {
+        fn from(program: Program) -> Self {
+            Self {
+                instructions: program,
+                ..Self::default()
+            }
+        }
+    }
+
+    #[derive(Debug, Clone, Copy)]
     pub enum Instructions {
-        Successor(u64),
-        Zero(u64),
-        Transfer(u64, u64),
-        Jump(u64, u64, u64),
+        S(u64),
+        Z(u64),
+        T(u64, u64),
+        J(u64, u64, u64),
     }
 }
 
-pub mod funcs {
+pub mod encode {
     use std::cmp::min;
 
     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
