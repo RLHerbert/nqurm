@@ -1,1 +1,1 @@
-# NQURM (Not Quiete Unlimited Register Machine)
+# NQURM (Not Quite Unlimited Register Machine)
