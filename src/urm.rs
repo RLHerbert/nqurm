@@ -136,15 +136,16 @@ mod urm_tests {
             registers: vec![(0, 5), (1, 8)].into_iter().collect(),
             ..URM::default()
         }
+
+        // STATUS: PASS
     }
 
     #[test]
-    // #[ignore = "Fails"]
     fn add_5_and_8_equals_13() {
         let urm = add_5_and_8();
         assert_eq!(13 as usize, execute(urm));
 
-        // STATUS: FAIL
+        // STATUS: PASS
     }
 
     #[test]
@@ -158,5 +159,7 @@ mod urm_tests {
         assert_eq!(urm.program_counter, 3);
         urm.next();
         assert_eq!(urm.program_counter, 0);
+
+        // STATUS: PASS
     }
 }
