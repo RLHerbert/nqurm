@@ -17,7 +17,7 @@ pub fn execute(urm: &mut URM) -> Registers {
 
 // TODO
 // Unit test
-fn max_register_value(program: &Program) -> RegisterValue {
+fn _max_register_value(program: &Program) -> RegisterValue {
     program
         .iter()
         .map(|ins| {
