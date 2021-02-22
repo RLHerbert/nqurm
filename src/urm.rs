@@ -9,8 +9,7 @@ pub type Registers = HashMap<RegisterIndex, RegisterValue>;
 
 // struct Register(HashMap<RegisterIndex, RegisterValue>);
 
-pub fn execute(urm: URM) -> usize {
-    // urm.into_iter().take(2).last().unwrap_or_default()
+pub fn execute(urm: &mut URM) -> Registers {
     urm.into_iter().last().unwrap_or_default()
 }
 
@@ -29,7 +28,7 @@ impl URM {
         self.registers.entry(index).or_insert(0).clone()
     }
 
-    fn step(&mut self) -> Option<&Registers> {
+    fn step(&mut self) -> Option<Registers> {
         //If there is an instruction at the index, execute it.
         if let Some(instruction) = self.next_instruction() {
             let mut next_pc = self.program_counter + 1;
@@ -49,7 +48,7 @@ impl URM {
                 }
             };
             self.program_counter = next_pc;
-            Some(&self.registers)
+            Some(self.registers.clone())
         } else {
             None
         }
@@ -63,12 +62,9 @@ impl URM {
 }
 
 impl Iterator for URM {
-    type Item = usize;
+    type Item = Registers;
     fn next(&mut self) -> Option<Self::Item> {
         self.step()
-            .map(|reg| reg.get(&0))
-            .flatten()
-            .map(|first| first.clone())
     }
 }
 
@@ -124,9 +120,10 @@ mod urm_tests {
             ..URM::default()
         };
 
-        // TODO
-        // Fix the off by 1 in the "first" program instruction.
-        assert_eq!(1 as usize, urm.next().unwrap_or_default());
+        assert_eq!(
+            1 as usize,
+            urm.next().unwrap_or_default().get(&0).unwrap().clone()
+        );
         assert_eq!(None, urm.next());
     }
 
@@ -142,8 +139,8 @@ mod urm_tests {
 
     #[test]
     fn add_5_and_8_equals_13() {
-        let urm = add_5_and_8();
-        assert_eq!(13 as usize, execute(urm));
+        let mut urm = add_5_and_8();
+        assert_eq!(13 as usize, execute(&mut urm).get(&0).unwrap().clone());
 
         // STATUS: PASS
     }
