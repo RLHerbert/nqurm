@@ -7,8 +7,6 @@ type RegisterValue = usize;
 type InstructionIndex = usize;
 pub type Registers = HashMap<RegisterIndex, RegisterValue>;
 
-// struct Register(HashMap<RegisterIndex, RegisterValue>);
-
 pub fn execute(urm: &mut URM) -> Registers {
     urm.into_iter().last().unwrap_or_default()
 }
@@ -94,18 +92,6 @@ pub enum Instruction {
     T(RegisterIndex, RegisterIndex),
     J(RegisterIndex, RegisterIndex, InstructionIndex),
 }
-
-// impl From<Vec<(usize, usize)>> for Register {
-//     fn from(_: Vec<(usize, usize)>) -> Self {
-//         todo!()
-//     }
-// }
-
-// impl From<Register> for HashMap<RegisterIndex, RegisterValue> {
-//     fn from(reg: Register) -> Self {
-//         reg.0
-//     }
-// }
 
 #[cfg(test)]
 mod urm_tests {
