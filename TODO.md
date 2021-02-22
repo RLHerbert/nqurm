@@ -1,8 +1,6 @@
 # TODO
 
 ## urm
-- `execute` returns whole register
-- `execute` takes reference instead of using `into_iter`
 - Implement:
   - `max_register`
 
