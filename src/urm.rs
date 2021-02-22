@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{cmp::max, collections::HashMap};
 
 type I = Instruction;
 pub type Program = Vec<I>;
@@ -7,8 +7,30 @@ type RegisterValue = usize;
 type InstructionIndex = usize;
 pub type Registers = HashMap<RegisterIndex, RegisterValue>;
 
+pub fn register_history(urm: &mut URM) -> Vec<Registers> {
+    urm.into_iter().collect()
+}
+
 pub fn execute(urm: &mut URM) -> Registers {
     urm.into_iter().last().unwrap_or_default()
+}
+
+// TODO
+// Unit test
+fn max_register_value(program: &Program) -> RegisterValue {
+    program
+        .iter()
+        .map(|ins| {
+            (match ins {
+                Instruction::Z(reg_idx) => reg_idx,
+                Instruction::S(reg_idx) => reg_idx,
+                Instruction::T(reg_idx_0, reg_idx_1) => max(reg_idx_0, reg_idx_1),
+                Instruction::J(reg_idx_0, reg_idx_1, _) => max(reg_idx_0, reg_idx_1),
+            })
+            .clone()
+        })
+        .max()
+        .unwrap_or_default()
 }
 
 #[derive(Debug)]
@@ -20,7 +42,6 @@ pub struct URM {
 
 impl URM {
     // TODO
-    // Change iter impl to return whole register.
     // Make pub version of this.
     fn value_of_register(&mut self, index: usize) -> usize {
         self.registers.entry(index).or_insert(0).clone()
