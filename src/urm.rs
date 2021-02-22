@@ -106,7 +106,7 @@ impl From<Program> for URM {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Instruction {
     S(RegisterIndex),
     Z(RegisterIndex),

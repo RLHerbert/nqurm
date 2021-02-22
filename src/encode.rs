@@ -1,72 +1,73 @@
 // TODO
 // Incorporate urm.rs
 
+use super::urm::Instruction as Inst;
 use std::cmp::min;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Inst {
-    S(u64),
-    Z(u64),
-    T(u64, u64),
-    J(u64, u64, u64),
-}
+// #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+// pub enum Inst {
+//     S(usize),
+//     Z(usize),
+//     T(usize, usize),
+//     J(usize, usize, usize),
+// }
 
 pub type Program = Vec<Inst>;
 
-pub fn pi(x: u64, y: u64) -> u64 {
-    (2u64.pow(x as u32) * ((2 * y) + 1)) - 1
+pub fn pi(x: usize, y: usize) -> usize {
+    (2usize.pow(x as u32) * ((2 * y) + 1)) - 1
 }
 
-pub fn pi_inv(n: u64) -> (u64, u64) {
+pub fn pi_inv(n: usize) -> (usize, usize) {
     let mut n = n + 1;
-    let x: u64 = (1..)
-        .take_while(|pow| n % 2u64.pow(*pow as u32) == 0)
+    let x: usize = (1..)
+        .take_while(|pow| n % 2usize.pow(*pow as u32) == 0)
         .last()
         .unwrap_or_default();
-    n = n / (2u64.pow(x as u32));
+    n = n / (2usize.pow(x as u32));
     let y = (n - 1) / 2;
 
     (x, y)
 }
 
-pub fn xi(x: u64, y: u64, z: u64) -> u64 {
+pub fn xi(x: usize, y: usize, z: usize) -> usize {
     pi(pi(x, y), z)
 }
 
-pub fn xi_inv(n: u64) -> (u64, u64, u64) {
+pub fn xi_inv(n: usize) -> (usize, usize, usize) {
     let (temp, z) = pi_inv(n);
     let (x, y) = pi_inv(temp);
     (x, y, z)
 }
 
-pub fn tau(a_s: Vec<u64>) -> u64 {
+pub fn tau(a_s: Vec<usize>) -> usize {
     a_s.iter()
         .fold((0, 0, 0), |(out, sup, k), x| {
-            (out + 2u64.pow((sup + x) as u32 + k), sup + x, k + 1)
+            (out + 2usize.pow((sup + x) as u32 + k), sup + x, k + 1)
         })
         .0
         - 1
 }
 
-pub fn tau_inv(a: u64) -> Vec<u64> {
+pub fn tau_inv(a: usize) -> Vec<usize> {
     let mut a2 = a + 1;
     // println!("{}", a2);
-    let mut v: Vec<u64> = Vec::new();
+    let mut v: Vec<usize> = Vec::new();
     while a2 > 0 {
         let (exp, largest_pow_2) = (1..)
             .enumerate()
-            .map(|(e, x)| (e + 1, 2u64.pow(x)))
+            .map(|(e, x)| (e + 1, 2usize.pow(x)))
             .take_while(|(_e, pot)| pot <= &a2)
             .last()
             .unwrap();
         // exp += 1;
         if let Some(x) = v.last_mut() {
-            *x -= exp as u64;
+            *x -= exp as usize;
         }
 
-        // println!("{}", exp as u64);
+        // println!("{}", exp as usize);
 
-        v.push(exp as u64);
+        v.push(exp as usize);
         a2 -= largest_pow_2;
     }
 
@@ -75,11 +76,11 @@ pub fn tau_inv(a: u64) -> Vec<u64> {
     v.into_iter()
         .rev()
         .enumerate()
-        .map(|(exp, out)| out - min(1, exp as u64))
+        .map(|(exp, out)| out - min(1, exp as usize))
         .collect()
 }
 
-pub fn beta(instruction: &Inst) -> u64 {
+pub fn beta(instruction: &Inst) -> usize {
     match instruction {
         Inst::Z(n) => 4 * (n - 1),
         Inst::S(n) => 4 * (n - 1) + 1,
@@ -88,7 +89,7 @@ pub fn beta(instruction: &Inst) -> u64 {
     }
 }
 
-pub fn beta_inv(a: u64) -> Inst {
+pub fn beta_inv(a: usize) -> Inst {
     // println!("a: {}", a);
     match a % 4 {
         0 => Inst::Z((a / 4) + 1),
@@ -105,11 +106,11 @@ pub fn beta_inv(a: u64) -> Inst {
     }
 }
 
-pub fn gamma(intcs: Vec<Inst>) -> u64 {
+pub fn gamma(intcs: Vec<Inst>) -> usize {
     tau(intcs.iter().map(|i| beta(i)).collect())
 }
 
-pub fn gamma_inv(gn: u64) -> Vec<Inst> {
+pub fn gamma_inv(gn: usize) -> Vec<Inst> {
     tau_inv(gn).into_iter().map(|b| beta_inv(b)).collect()
 }
 
@@ -136,7 +137,7 @@ fn xi_inv_works() {
 #[test]
 fn tau_works() {
     let v = vec![1, 2];
-    assert_eq!(2u64.pow(1) + 2u64.pow(4) - 1, tau(v));
+    assert_eq!(2usize.pow(1) + 2usize.pow(4) - 1, tau(v));
     let v = vec![5, 8, 4, 2, 4];
     assert_eq!(138952735, tau(v));
 }
@@ -171,7 +172,7 @@ fn beta_inv_works() {
 #[test]
 fn gamma_works() {
     assert_eq!(
-        2u64.pow(18) + 2u64.pow(32) + 2u64.pow(53) - 1,
+        2usize.pow(18) + 2usize.pow(32) + 2usize.pow(53) - 1,
         gamma(vec![Inst::T(1, 3), Inst::S(4), Inst::Z(6)])
     );
 }
@@ -179,7 +180,7 @@ fn gamma_works() {
 #[test]
 fn gamma_inv_works() {
     assert_eq!(
-        gamma_inv(2u64.pow(18) + 2u64.pow(32) + 2u64.pow(53) - 1),
+        gamma_inv(2usize.pow(18) + 2usize.pow(32) + 2usize.pow(53) - 1),
         vec![Inst::T(1, 3), Inst::S(4), Inst::Z(6)]
     )
 }
