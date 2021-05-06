@@ -17,17 +17,16 @@ pub fn execute(urm: &mut URM) -> Registers {
 
 // TODO
 // Unit test
-fn _max_register_value(program: &Program) -> RegisterValue {
+fn _max_register_value(program: &[I]) -> RegisterValue {
     program
         .iter()
         .map(|ins| {
-            (match ins {
+            *(match ins {
                 Instruction::Z(reg_idx) => reg_idx,
                 Instruction::S(reg_idx) => reg_idx,
                 Instruction::T(reg_idx_0, reg_idx_1) => max(reg_idx_0, reg_idx_1),
                 Instruction::J(reg_idx_0, reg_idx_1, _) => max(reg_idx_0, reg_idx_1),
             })
-            .clone()
         })
         .max()
         .unwrap_or_default()
@@ -44,7 +43,7 @@ impl URM {
     // TODO
     // Make pub version of this.
     fn value_of_register(&mut self, index: usize) -> usize {
-        self.registers.entry(index).or_insert(0).clone()
+        *self.registers.entry(index).or_insert(0)
     }
 
     fn step(&mut self) -> Option<Registers> {
@@ -74,9 +73,7 @@ impl URM {
     }
 
     fn next_instruction(&self) -> Option<Instruction> {
-        self.instructions
-            .get(self.program_counter)
-            .map(|ins| ins.clone())
+        self.instructions.get(self.program_counter).copied()
     }
 }
 
@@ -117,8 +114,6 @@ pub enum Instruction {
 #[cfg(test)]
 mod urm_tests {
 
-    use std::usize;
-
     use super::{execute, Instruction::*, URM};
     #[test]
     fn s_0_increments_register_0() {
@@ -128,26 +123,29 @@ mod urm_tests {
         };
 
         assert_eq!(
-            1 as usize,
+            1usize,
             urm.next().unwrap_or_default().get(&0).unwrap().clone()
         );
         assert_eq!(None, urm.next());
+
+        // STATUS: PASS
     }
 
+    // Helper function
     fn add_5_and_8() -> URM {
         URM {
             instructions: vec![J(1, 2, usize::MAX), S(0), S(2), J(0, 0, 0)],
             registers: vec![(0, 5), (1, 8)].into_iter().collect(),
             ..URM::default()
         }
-
-        // STATUS: PASS
     }
 
     #[test]
     fn add_5_and_8_equals_13() {
         let mut urm = add_5_and_8();
-        assert_eq!(13 as usize, execute(&mut urm).get(&0).unwrap().clone());
+        assert_eq!(13usize, execute(&mut urm).get(&0).unwrap().clone());
+
+        println!("{:?}", urm);
 
         // STATUS: PASS
     }
@@ -163,6 +161,8 @@ mod urm_tests {
         assert_eq!(urm.program_counter, 3);
         urm.next();
         assert_eq!(urm.program_counter, 0);
+
+        println!("{:?}", urm);
 
         // STATUS: PASS
     }
