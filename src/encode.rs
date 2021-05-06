@@ -24,7 +24,7 @@ pub fn pi_inv(n: usize) -> (usize, usize) {
         .take_while(|pow| n % 2usize.pow(*pow as u32) == 0)
         .last()
         .unwrap_or_default();
-    n = n / (2usize.pow(x as u32));
+    n /= 2usize.pow(x as u32);
     let y = (n - 1) / 2;
 
     (x, y)
@@ -111,7 +111,7 @@ pub fn gamma(intcs: Vec<Inst>) -> usize {
 }
 
 pub fn gamma_inv(gn: usize) -> Vec<Inst> {
-    tau_inv(gn).into_iter().map(|b| beta_inv(b)).collect()
+    tau_inv(gn).into_iter().map(beta_inv).collect()
 }
 
 #[test]
