@@ -6,6 +6,9 @@ type RegisterIndex = usize;
 type RegisterValue = usize;
 type InstructionIndex = usize;
 pub type Registers = HashMap<RegisterIndex, RegisterValue>;
+pub const EXIT: usize = usize::MAX;
+
+pub mod primitives;
 
 pub fn register_history(urm: &mut URM) -> Vec<Registers> {
     urm.into_iter().collect()
@@ -114,7 +117,7 @@ pub enum Instruction {
 #[cfg(test)]
 mod urm_tests {
 
-    use super::{execute, Instruction::*, URM};
+    use super::{execute, Instruction::*, EXIT, URM};
     #[test]
     fn s_0_increments_register_0() {
         let mut urm = URM {
@@ -134,7 +137,7 @@ mod urm_tests {
     // Helper function
     fn add_5_and_8() -> URM {
         URM {
-            instructions: vec![J(1, 2, usize::MAX), S(0), S(2), J(0, 0, 0)],
+            instructions: vec![J(1, 2, EXIT), S(0), S(2), J(0, 0, 0)],
             registers: vec![(0, 5), (1, 8)].into_iter().collect(),
             ..URM::default()
         }
